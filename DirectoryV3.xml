@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+ <trees>
+     <tree path="/model" title="模型层" extension="" presentableText="" tooltipTitle="" icon="" textColor=""
+           backgroundColor=""/>
+     <tree path="/server-gateway" title="网关"/>
+     <tree path="/common" title="公共模块"/>
+     <tree path="/service" title="微服务模块"/>
+     <tree path="/web" title="入口模块" extension="" presentableText="" tooltipTitle="" icon="" textColor=""
+           backgroundColor=""/>
+     <tree path="/service-client" title="远程调用模块"/>
+     <tree path="/web/web-customer" title="乘客端"/>
+     <tree path="/web/web-driver" title="司机端"/>
+     <tree path="/web/web-mgr" title="管理端" extension="" presentableText="" tooltipTitle="" icon="" textColor=""
+           backgroundColor=""/>
+    <tree path="/common/service-util/src/main/java/com/atguigu/daijia/common/login" title="自定义注解"/>
+    <tree path="/common/service-util/src/main/java/com/atguigu/daijia/common/login/Login.java"
+          title="设置注解的范围和作用时间"/>
+    <tree path="/common/service-util/src/main/java/com/atguigu/daijia/common/login/LoginAspect.java"
+          title="定义切面类"/>
+    <tree path="/service/service-customer" title="乘客端微服务模块"/>
+    <tree path="/service/service-driver" title="司机端微服务模块"/>
+    <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/DriverController.java"
+          title="司机端登录、获取用户信息" extension="" presentableText="" tooltipTitle="" icon="" textColor=""
+          backgroundColor=""/>
+    <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/CosController.java"
+          title="" extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+    <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/FileController.java"
+          title="上传文件" extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+</trees>
