@@ -16,6 +16,7 @@ import com.atguigu.daijia.model.entity.driver.DriverAccount;
 import com.atguigu.daijia.model.entity.driver.DriverInfo;
 import com.atguigu.daijia.model.entity.driver.DriverLoginLog;
 import com.atguigu.daijia.model.entity.driver.DriverSet;
+import com.atguigu.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.atguigu.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.atguigu.daijia.model.vo.driver.DriverLoginVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -46,7 +47,7 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
     @Autowired
     private DriverLoginLogMapper driverLoginLogMapper;
     @Autowired
-   private CosService cosService;
+    private CosService cosService;
 
     //小程序授权登录
     @Override
@@ -115,7 +116,7 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
     @Override
     public DriverAuthInfoVo getDriverAuthInfo(Long driverId) {
         DriverInfo driverInfo = driverInfoMapper.selectById(driverId);
-        System.out.println("获取司机认证信息："+driverInfo);
+        System.out.println("获取司机认证信息：" + driverInfo);
         DriverAuthInfoVo driverAuthInfoVo = new DriverAuthInfoVo();
         BeanUtils.copyProperties(driverInfo, driverAuthInfoVo);
         //设置身份证、驾驶证正反面的图片回显
@@ -127,5 +128,24 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         driverAuthInfoVo.setDriverLicenseHandShowUrl(cosService.getImageUrl(driverAuthInfoVo.getDriverLicenseHandUrl()));
 
         return driverAuthInfoVo;
+    }
+
+    //修改司机认证信息
+
+    /*
+     * 1.根据id将司机信息查询出来，向表中set值，最后掉方法进行更新
+     * 2.new 一个对象，然后set值，最后掉方法进行更新
+     * */
+    @Override
+    public Boolean updateDriverAuthInfo(UpdateDriverAuthInfoForm updateDriverAuthInfoForm) {
+        //获取司机id
+        Long driverId = updateDriverAuthInfoForm.getDriverId();
+        //修改操作
+        DriverInfo driverInfo = new DriverInfo();
+        driverInfo.setId(driverId);
+        BeanUtils.copyProperties(updateDriverAuthInfoForm, driverInfo);
+//        int i = driverInfoMapper.updateById(driverInfo);
+        boolean update = this.updateById(driverInfo);
+        return update;
     }
 }
