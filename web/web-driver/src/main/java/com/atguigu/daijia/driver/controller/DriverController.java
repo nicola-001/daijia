@@ -6,6 +6,7 @@ import com.atguigu.daijia.common.util.AuthContextHolder;
 import com.atguigu.daijia.driver.client.DriverInfoFeignClient;
 import com.atguigu.daijia.driver.service.DriverService;
 import com.atguigu.daijia.model.form.customer.UpdateCustomerInfoForm;
+import com.atguigu.daijia.model.form.driver.DriverFaceModelForm;
 import com.atguigu.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.atguigu.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.atguigu.daijia.model.vo.driver.DriverLoginVo;
@@ -60,8 +61,18 @@ public class DriverController {
     public Result<Boolean> updateDriverAuthInfo(@RequestBody UpdateDriverAuthInfoForm updateDriverAuthInfoForm) {
         //获取用户id，当前是司机id
         Long driverId = AuthContextHolder.getUserId();
+        updateDriverAuthInfoForm.setDriverId(driverId);
         Boolean isSuccess = driverService.updateDriverAuthInfo(updateDriverAuthInfoForm);
         return Result.ok(isSuccess);
+    }
+    @Operation(summary = "创建司机人脸模型")
+    @Login
+    @PostMapping("/creatDriverFaceModel")
+    public Result<Boolean> createDriverFaceModel(@RequestBody DriverFaceModelForm driverFaceModelForm){
+        Long driverId = AuthContextHolder.getUserId();
+        driverFaceModelForm.setDriverId(driverId);
+        Result<Boolean> driverFaceModel = driverService.createDriverFaceModel(driverFaceModelForm);
+        return Result.ok(driverFaceModel.getData());
     }
 }
 

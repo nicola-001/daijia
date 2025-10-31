@@ -31,4 +31,7 @@ public interface DriverInfoFeignClient {
     //远程调用定义：更新司机认证信息
     @PostMapping("/driver/info/updateDriverAuthInfo")
     public Result<Boolean> UpdateDriverAuthInfo(@RequestBody UpdateDriverAuthInfoForm updateDriverAuthInfoForm);
+    //远程调用定义：创建司机人脸模型
+    @PostMapping("/driver/info/creatDriverFaceModel")
+    public Result<Boolean> createDriverFaceModel(@RequestBody DriverFaceModelForm driverFaceModelForm);
 }
