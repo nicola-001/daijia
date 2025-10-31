@@ -31,24 +31,30 @@ public class LoginAspect {
     private RedisTemplate redisTemplate;
 
     @Around("execution(* com.atguigu.daijia.*.controller.*.*(..)) && @annotation(login)")
-    public Object login(ProceedingJoinPoint proceedingJoinPoint, Login login) throws Throwable {
-        //1.获取request对象
-        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-        ServletRequestAttributes sra = (ServletRequestAttributes) attributes;
-        HttpServletRequest request = sra.getRequest();
-        //2.从请求头中获取token
-        String token = request.getHeader("token");
+    public Object login(ProceedingJoinPoint proceedingJoinPoint, Login login)  {
+        try {
+            //1.获取request对象
+            RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+            ServletRequestAttributes sra = (ServletRequestAttributes) attributes;
+            HttpServletRequest request = sra.getRequest();
+            //2.从请求头中获取token
+            String token = request.getHeader("token");
 
-        //3.判断token是否为空，如果为空，返回登录提示；
-        if (!StringUtils.hasText(token)) {
-            throw new GuiguException(ResultCodeEnum.LOGIN_AUTH);
+            //3.判断token是否为空，如果为空，返回登录提示；
+            if (!StringUtils.hasText(token)) {
+                throw new GuiguException(ResultCodeEnum.LOGIN_AUTH);
+            }
+            //4.如果不为空，查询redis
+            String customerId = (String) redisTemplate.opsForValue().get(RedisConstant.USER_LOGIN_KEY_PREFIX + token);
+            //5.查询redis中的id，把id放到ThreadLocal中
+            if (StringUtils.hasText(customerId)) {
+                AuthContextHolder.setUserId(Long.parseLong(customerId));
+            }
+            return proceedingJoinPoint.proceed();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }finally {
+            AuthContextHolder.removeUserId();
         }
-        //4.如果不为空，查询redis
-        String customerId = (String) redisTemplate.opsForValue().get(RedisConstant.USER_LOGIN_KEY_PREFIX + token);
-        //5.查询redis中的id，把id放到ThreadLocal中
-        if (StringUtils.hasText(customerId)) {
-            AuthContextHolder.setUserId(Long.parseLong(customerId));
-        }
-        return proceedingJoinPoint.proceed();
     }
 }

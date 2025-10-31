@@ -1,5 +1,7 @@
 package com.atguigu.daijia.driver.service.impl;
 
+import com.atguigu.daijia.common.execption.GuiguException;
+import com.atguigu.daijia.common.result.ResultCodeEnum;
 import com.atguigu.daijia.driver.config.TencentCloudProperties;
 import com.atguigu.daijia.driver.service.CosService;
 import com.atguigu.daijia.model.vo.driver.CosUploadVo;
@@ -33,45 +35,45 @@ public class CosServiceImpl implements CosService {
 
     @Override
     public CosUploadVo upload(MultipartFile file, String path) {
-
-        //获取cosClient对象
-        COSClient cosClient = this.getCosClient();
-
-        //文件上传
-        //元数据信息
-        ObjectMetadata meta = new ObjectMetadata();
-        meta.setContentLength(file.getSize());
-        meta.setContentEncoding("UTF-8");
-        meta.setContentType(file.getContentType());
-
-        //向存储桶中保存文件
-        String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")); //文件后缀名
-        String uploadPath = "/driver/" + path + "/" + UUID.randomUUID().toString().replaceAll("-", "") + fileType;
-        // 01.jpg
-        // /driver/auth/0o98754.jpg
-        PutObjectRequest putObjectRequest = null;
         try {
-            //1 bucket名称
-            //2
+
+            //获取cosClient对象
+            COSClient cosClient = this.getCosClient();
+
+            //文件上传
+            //元数据信息
+            ObjectMetadata meta = new ObjectMetadata();
+            meta.setContentLength(file.getSize());
+            meta.setContentEncoding("UTF-8");
+            meta.setContentType(file.getContentType());
+
+            //向存储桶中保存文件
+            String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")); //文件后缀名
+            String uploadPath = "/driver/" + path + "/" + UUID.randomUUID().toString().replaceAll("-", "") + fileType;
+            // 01.jpg
+            // /driver/auth/0o98754.jpg
+            PutObjectRequest putObjectRequest = null;
             putObjectRequest = new PutObjectRequest(tencentCloudProperties.getBucketPrivate(),
                     uploadPath,
                     file.getInputStream(),
                     meta);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        // 多可用区存储桶使用默认存储类型
-        // putObjectRequest.setStorageClass(StorageClass.Standard);
-        PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest); //上传文件
-        cosClient.shutdown();
 
-        //返回vo对象
-        CosUploadVo cosUploadVo = new CosUploadVo();
-        cosUploadVo.setUrl(uploadPath);
-        // 图片临时访问url，回显使用
-        String imageUrl = this.getImageUrl(uploadPath);
-        cosUploadVo.setShowUrl(imageUrl);
-        return cosUploadVo;
+            // 多可用区存储桶使用默认存储类型
+            putObjectRequest.setStorageClass(StorageClass.Standard);
+            PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest); //上传文件
+            cosClient.shutdown();
+
+            //返回vo对象
+            CosUploadVo cosUploadVo = new CosUploadVo();
+            cosUploadVo.setUrl(uploadPath);
+            // 图片临时访问url，回显使用
+            String imageUrl = this.getImageUrl(uploadPath);
+            cosUploadVo.setShowUrl(imageUrl);
+            return cosUploadVo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
     }
 
     public COSClient getCosClient() {

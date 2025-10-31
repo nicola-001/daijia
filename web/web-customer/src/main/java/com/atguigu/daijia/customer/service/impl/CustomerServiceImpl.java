@@ -34,18 +34,13 @@ public class CustomerServiceImpl implements CustomerService {
         Result<Long> loginResult = client.login(code);
 
         //2 判断如果返回失败了，返回错误提示
-        Integer codeResult = loginResult.getCode();
-        if (codeResult != 200) {
+        if (loginResult.getCode() != 200|| loginResult.getData() == null) {
             throw new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
 
         //3 获取远程调用返回用户id
         Long customerId = loginResult.getData();
 
-        //4 判断返回用户id是否为空，如果为空，返回错误提示
-        if (customerId == null) {
-            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
-        }
 
         //5 生成token字符串
         String token = UUID.randomUUID().toString().replaceAll("-", "");
@@ -71,14 +66,10 @@ public class CustomerServiceImpl implements CustomerService {
         }
         //3.根据用户id，远程调用获取用户信息
         Result<CustomerLoginVo> customerLoginVoResult = client.getCustomerLoginInfo(Long.parseLong(customerId));
-        Integer code = customerLoginVoResult.getCode();
-        if (code != 200) {
+        if (customerLoginVoResult.getCode() != 200|| customerLoginVoResult.getData() == null) {
             throw new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
         CustomerLoginVo customerLoginVo = customerLoginVoResult.getData();
-        if (customerLoginVo == null) {
-            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
-        }
 
         return customerLoginVo;
     }
@@ -88,14 +79,10 @@ public class CustomerServiceImpl implements CustomerService {
 
         //3.根据用户id，远程调用获取用户信息
         Result<CustomerLoginVo> customerLoginVoResult = client.getCustomerLoginInfo(customerId);
-        Integer code = customerLoginVoResult.getCode();
-        if (code != 200) {
+        if (customerLoginVoResult.getCode() != 200|| customerLoginVoResult.getData() == null) {
             throw new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
         CustomerLoginVo customerLoginVo = customerLoginVoResult.getData();
-        if (customerLoginVo == null) {
-            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
-        }
 
         return customerLoginVo;
     }

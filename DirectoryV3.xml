@@ -26,4 +26,9 @@
           title="" extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
     <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/FileController.java"
           title="上传文件" extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+    <tree path="/service/service-driver/src/main/java/com/atguigu/daijia/driver/controller/CosController.java"
+          title="上传"/>
+    <tree path="/service/service-driver/src/main/java/com/atguigu/daijia/driver/controller/OcrController.java"
+          title="认证"/>
+    <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/OcrController.java" title="认证"/>
 </trees>
