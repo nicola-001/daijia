@@ -1,9 +1,12 @@
 package com.atguigu.daijia.driver.service.impl;
 
 import com.atguigu.daijia.common.constant.RedisConstant;
+import com.atguigu.daijia.common.execption.GuiguException;
 import com.atguigu.daijia.common.result.Result;
+import com.atguigu.daijia.common.result.ResultCodeEnum;
 import com.atguigu.daijia.driver.client.DriverInfoFeignClient;
 import com.atguigu.daijia.driver.service.DriverService;
+import com.atguigu.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.atguigu.daijia.model.vo.driver.DriverLoginVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +38,17 @@ public class DriverServiceImpl implements DriverService {
                 RedisConstant.USER_LOGIN_KEY_TIMEOUT,
                 TimeUnit.SECONDS);
         return token;
+    }
+
+    @Override
+    public DriverAuthInfoVo getDriverAuthInfo(Long driverId) {
+        Result<DriverAuthInfoVo> driverAuthInfo = driverInfoFeignClient.getDriverAuthInfo(driverId);
+        log.info("获取司机认证信息service222222222：{}", driverAuthInfo);
+        if(driverAuthInfo.getCode()!=200||driverAuthInfo.getData()==null){
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
+        System.out.println("司机认证信息为："+driverAuthInfo);
+        return driverAuthInfo.getData();
+
     }
 }

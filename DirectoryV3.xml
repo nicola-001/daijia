@@ -31,4 +31,6 @@
     <tree path="/service/service-driver/src/main/java/com/atguigu/daijia/driver/controller/OcrController.java"
           title="认证"/>
     <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/OcrController.java" title="认证"/>
+    <tree path="/service/service-driver/src/main/java/com/atguigu/daijia/driver/controller/DriverInfoController.java"
+          title="获取信息"/>
 </trees>

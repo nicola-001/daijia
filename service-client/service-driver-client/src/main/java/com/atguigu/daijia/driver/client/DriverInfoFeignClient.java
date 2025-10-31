@@ -23,4 +23,8 @@ public interface DriverInfoFeignClient {
     //远程调用定义：获取司机登录信息
     @GetMapping("/driver/info/getDriverLoginInfo/{driverId}")
     public Result<DriverLoginVo> getDriverInfo(@PathVariable Long driverId);
+
+    //远程调用定义：获取司机认证信息
+    @GetMapping("/driver/info/getDriverAuthInfo/{driverId}")
+    public Result<DriverAuthInfoVo> getDriverAuthInfo(@PathVariable Long driverId);
 }
