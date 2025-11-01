@@ -92,6 +92,10 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
     @Override
     public Boolean updateWxPhoneNumber(UpdateWxPhoneForm updateWxPhoneForm) {
         //1 根据code值获取微信绑定手机号码
+        //1.1 校验code参数
+        if (!StringUtils.hasText(updateWxPhoneForm.getCode())) {
+            throw new GuiguException(ResultCodeEnum.ARGUMENT_VALID_ERROR);
+        }
         try {
             WxMaPhoneNumberInfo phoneNoInfo =
                     wxMaService.getUserService().getPhoneNoInfo(updateWxPhoneForm.getCode());
