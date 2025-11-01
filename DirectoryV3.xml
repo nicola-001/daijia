@@ -36,4 +36,9 @@
     <tree path="/service/service-map" title="地图相关微服务模块"/>
     <tree path="/service/service-rules/src/main/java/com/atguigu/daijia/rules/config" title="drools配置类" extension=""
           presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+    <tree path="/service/service-order" title="订单相关微服务模块"/>
+    <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/OrderController.java"
+          title="司机端订单相关接口"/>
+    <tree path="/web/web-customer/src/main/java/com/atguigu/daijia/customer/controller/OrderController.java"
+          title="乘客端订单相关接口"/>
 </trees>
