@@ -41,4 +41,9 @@
           title="司机端订单相关接口"/>
     <tree path="/web/web-customer/src/main/java/com/atguigu/daijia/customer/controller/OrderController.java"
           title="乘客端订单相关接口"/>
+    <tree path="/service-client/service-map-client/src/main/java/com/atguigu/daijia/map/client/LocationFeignClient.java"
+          title="位置远程调用模块" extension="" presentableText="" tooltipTitle="" icon="" textColor=""
+          backgroundColor=""/>
+    <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/LocationController.java"
+          title="位置相关"/>
 </trees>
