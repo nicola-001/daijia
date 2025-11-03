@@ -39,8 +39,9 @@ public class LocationServiceImpl implements LocationService {
     //司机开始接单：更新司机位置信息
     @Override
     public Boolean updateDriverLocation(UpdateDriverLocationForm updateDriverLocationForm) {
+        System.out.println(updateDriverLocationForm.getLongitude().doubleValue()+"   "+updateDriverLocationForm.getLatitude().doubleValue());
         //把司机位置信息添加redis里面geo
-        Point point = new Point(updateDriverLocationForm.getDriverId().doubleValue(), updateDriverLocationForm.getLongitude().doubleValue());
+        Point point = new Point(updateDriverLocationForm.getLongitude().doubleValue(), updateDriverLocationForm.getLatitude().doubleValue());
         //添加到redis里面
         redisTemplate.opsForGeo().add(RedisConstant.DRIVER_GEO_LOCATION,
                 point,
