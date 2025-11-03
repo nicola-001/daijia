@@ -221,4 +221,17 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         }
         return true;
     }
+
+    //获取司机个性化设置消息
+    @Override
+    public DriverSet getDriverSet(Long driverId) {
+        LambdaQueryWrapper<DriverSet> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DriverSet::getDriverId, driverId);
+        DriverSet driverSet = driverSetMapper.selectOne(wrapper);
+        if (driverSet == null) {
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
+        return driverSet;
+
+    }
 }
