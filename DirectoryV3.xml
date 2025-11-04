@@ -46,4 +46,8 @@
           backgroundColor=""/>
     <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/controller/LocationController.java"
           title="位置相关"/>
+    <tree path="/service/service-dispatch" title="定时任务"/>
+    <tree path="/service/service-dispatch/src/main/java/com/atguigu/daijia/dispatch/xxl/config" title="配置类"/>
+    <tree path="/service/service-dispatch/src/main/java/com/atguigu/daijia/dispatch/xxl/job" title="测试方法"
+          extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
 </trees>
