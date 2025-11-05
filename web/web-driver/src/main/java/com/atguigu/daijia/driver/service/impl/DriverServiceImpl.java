@@ -72,4 +72,21 @@ public class DriverServiceImpl implements DriverService {
         return Result.ok(booleanResult.getData());
     }
 
+    //判断司机当日是否进行过人脸识别
+    @Override
+    public Result<Boolean> isFaceRecognition(Long driverId) {
+
+        Result<Boolean> faceRecognition = driverInfoFeignClient.isFaceRecognition(driverId);
+        if (faceRecognition.getCode() != 200) {
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
+        return faceRecognition;
+    }
+
+    //人脸识别
+    @Override
+    public Boolean verifyDriverFace(DriverFaceModelForm driverFaceModelForm) {
+        return driverInfoFeignClient.verifyDriverFace(driverFaceModelForm).getData();
+    }
+
 }

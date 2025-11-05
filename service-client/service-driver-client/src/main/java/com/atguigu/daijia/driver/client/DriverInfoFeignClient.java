@@ -39,4 +39,11 @@ public interface DriverInfoFeignClient {
     //远程调用定义：获取司机个性化信息
     @GetMapping("/driver/info/getDriverSet/{driverId}")
     Result<DriverSet> getDriverSet(@PathVariable("driverId") Long driverId);
+
+    //远程调用定义：判断司机当日是否进行过人脸识别
+    @GetMapping("/driver/info/isFaceRecognition/{driverId}")
+    Result<Boolean> isFaceRecognition(@PathVariable("driverId") Long driverId);
+    //远程调用定义：验证司机人脸
+    @PostMapping("/driver/info/verifyDriverFace")
+    public Result<Boolean> verifyDriverFace(@RequestBody DriverFaceModelForm driverFaceModelForm);
 }

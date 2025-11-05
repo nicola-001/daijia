@@ -32,6 +32,7 @@ public class DriverController {
     public Result<String> login(@PathVariable String code) {
         return Result.ok(driverService.login(code));
     }
+
     @Operation(summary = "获取司机登录信息")
     @Login
     @GetMapping("/getDriverLoginInfo")
@@ -44,6 +45,7 @@ public class DriverController {
         DriverLoginVo driverLoginVo = loginVoResult.getData();
         return Result.ok(driverLoginVo);
     }
+
     @Operation(summary = "获取司机认证信息")
     @Login
     @GetMapping("/getDriverAuthInfo")
@@ -65,14 +67,30 @@ public class DriverController {
         Boolean isSuccess = driverService.updateDriverAuthInfo(updateDriverAuthInfoForm);
         return Result.ok(isSuccess);
     }
+
     @Operation(summary = "创建司机人脸模型")
     @Login
     @PostMapping("/creatDriverFaceModel")
-    public Result<Boolean> createDriverFaceModel(@RequestBody DriverFaceModelForm driverFaceModelForm){
+    public Result<Boolean> createDriverFaceModel(@RequestBody DriverFaceModelForm driverFaceModelForm) {
         Long driverId = AuthContextHolder.getUserId();
         driverFaceModelForm.setDriverId(driverId);
         Result<Boolean> driverFaceModel = driverService.createDriverFaceModel(driverFaceModelForm);
         return Result.ok(driverFaceModel.getData());
+    }
+
+    @Operation(summary = "判断司机当日是否进行过人脸识别")
+    @Login
+    @GetMapping("/isFaceRecognition")
+    public Result<Boolean> isFaceRecognition() {
+        Long driverId = AuthContextHolder.getUserId();
+        return driverService.isFaceRecognition(driverId);
+    }
+    @Operation(summary = "验证司机人脸")
+    @Login
+    @PostMapping("/verifyDriverFace")
+    public Result<Boolean> verifyDriverFace(@RequestBody DriverFaceModelForm driverFaceModelForm) {
+        driverFaceModelForm.setDriverId(AuthContextHolder.getUserId());
+        return Result.ok(driverService.verifyDriverFace(driverFaceModelForm));
     }
 }
 
