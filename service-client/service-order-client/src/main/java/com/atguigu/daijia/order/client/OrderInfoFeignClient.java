@@ -19,4 +19,7 @@ public interface OrderInfoFeignClient {
     //远程调用：根据订单id查询订单状态
     @GetMapping("/order/info/getOrderStatus/{orderId}")
     public Result<Integer> getOrderStatus(@PathVariable Long orderId);
+
+    @GetMapping("/order/info/robNewOrder/{driverId}/{orderId}")
+    public Result<Boolean> robNewOrder(@PathVariable Long driverId, @PathVariable Long orderId);
 }
