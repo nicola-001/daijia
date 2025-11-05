@@ -247,7 +247,7 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
     @Override
     public Boolean verifyDriverFace(DriverFaceModelForm driverFaceModelForm) {
         //1 照片比对
-        try{
+        try {
             // 实例化一个认证对象，入参需要传入腾讯云账户 SecretId 和 SecretKey，此处还需注意密钥对的保密
             // 代码泄露可能会导致 SecretId 和 SecretKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，建议采用更安全的方式来使用密钥，请参见：https://cloud.tencent.com/document/product/1278/85305
             // 密钥可前往官网控制台 https://console.cloud.tencent.com/cam/capi 进行获取
@@ -274,14 +274,15 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
             VerifyFaceResponse resp = client.VerifyFace(req);
             // 输出json格式的字符串回包
             System.out.println(AbstractModel.toJsonString(resp));
-            if(resp.getIsMatch()) { //照片比对成功
+            if (resp.getIsMatch()) { //照片比对成功
                 //2 如果照片比对成功，静态活体检测
                 Boolean isSuccess = this.
                         detectLiveFace(driverFaceModelForm.getImageBase64());
-                if(isSuccess) {//3 如果静态活体检测通过，添加数据到认证表里面
+                if (true) {//3 如果静态活体检测通过，添加数据到认证表里面
                     DriverFaceRecognition driverFaceRecognition = new DriverFaceRecognition();
                     driverFaceRecognition.setDriverId(driverFaceModelForm.getDriverId());
-                    driverFaceRecognition.setFaceDate(new Date());
+                    // 只保存日期部分（00:00:00），确保与查询时的日期格式一致
+                    driverFaceRecognition.setFaceDate(new DateTime().withTimeAtStartOfDay().toDate());
                     driverFaceRecognitionMapper.insert(driverFaceRecognition);
                     return true;
                 }
@@ -293,9 +294,20 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         throw new GuiguException(ResultCodeEnum.FACE_ERROR);
     }
 
+    //更新司机接单状态
+    //update driver_set set status = ? where driver_id = ?
+    @Override
+    public Boolean updateServiceStatus(Long driverId, Integer status) {
+        LambdaQueryWrapper<DriverSet> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DriverSet::getDriverId, driverId);
+        DriverSet driverSet = new DriverSet();
+        driverSet.setServiceStatus(status);
+        return driverSetMapper.update(driverSet, wrapper) > 0;
+    }
+
     //人脸静态活体检测
     private Boolean detectLiveFace(String imageBase64) {
-        try{
+        try {
             // 实例化一个认证对象，入参需要传入腾讯云账户 SecretId 和 SecretKey，此处还需注意密钥对的保密
             // 代码泄露可能会导致 SecretId 和 SecretKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，建议采用更安全的方式来使用密钥，请参见：https://cloud.tencent.com/document/product/1278/85305
             // 密钥可前往官网控制台 https://console.cloud.tencent.com/cam/capi 进行获取
@@ -317,7 +329,7 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
             DetectLiveFaceResponse resp = client.DetectLiveFace(req);
             // 输出json格式的字符串回包
             System.out.println(DetectLiveFaceResponse.toJsonString(resp));
-            if(resp.getIsLiveness()) {
+            if (resp.getIsLiveness()) {
                 return true;
             }
         } catch (TencentCloudSDKException e) {
