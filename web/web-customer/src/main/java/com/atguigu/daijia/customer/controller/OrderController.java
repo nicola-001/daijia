@@ -4,10 +4,14 @@ import com.atguigu.daijia.common.login.Login;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.common.util.AuthContextHolder;
 import com.atguigu.daijia.customer.service.OrderService;
+import com.atguigu.daijia.map.client.LocationFeignClient;
 import com.atguigu.daijia.model.form.customer.ExpectOrderForm;
 import com.atguigu.daijia.model.form.customer.SubmitOrderForm;
+import com.atguigu.daijia.model.form.map.CalculateDrivingLineForm;
 import com.atguigu.daijia.model.vo.customer.ExpectOrderVo;
 import com.atguigu.daijia.model.vo.driver.DriverInfoVo;
+import com.atguigu.daijia.model.vo.map.DrivingLineVo;
+import com.atguigu.daijia.model.vo.map.OrderLocationVo;
 import com.atguigu.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.atguigu.daijia.model.vo.order.OrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     @Autowired
     private OrderService orderService;
+
+
     @Operation(summary = "乘客端查找当前订单")
     @Login
     @GetMapping("/searchCustomerCurrentOrder")
@@ -39,6 +45,7 @@ public class OrderController {
     public Result<ExpectOrderVo> expectOrder(@RequestBody ExpectOrderForm expectOrderForm) {
         return Result.ok(orderService.expectOrder(expectOrderForm));
     }
+
     @Operation(summary = "乘客下单")
     @Login
     @PostMapping("/submitOrder")
@@ -46,6 +53,7 @@ public class OrderController {
         submitOrderForm.setCustomerId(AuthContextHolder.getUserId());
         return Result.ok(orderService.submitOrder(submitOrderForm));
     }
+
     @Operation(summary = "查询订单状态")
     @Login
     @GetMapping("/getOrderStatus/{orderId}")
@@ -60,6 +68,7 @@ public class OrderController {
         Long customerId = AuthContextHolder.getUserId();
         return Result.ok(orderService.getOrderInfo(orderId, customerId));
     }
+
     @Operation(summary = "根据订单id获取司机基本信息")
     @Login
     @GetMapping("/getDriverInfo/{orderId}")
@@ -67,5 +76,20 @@ public class OrderController {
         Long customerId = AuthContextHolder.getUserId();
         return Result.ok(orderService.getDriverInfo(orderId, customerId));
     }
+
+    //乘客端获取司机的经纬度位置
+    @Operation(summary = "司机赶往代驾起始点：获取订单经纬度位置")
+    @GetMapping("/getCacheOrderLocation/{orderId}")
+    public Result<OrderLocationVo> getCacheOrderLocation(@PathVariable Long orderId) {
+        return Result.ok(orderService.getCacheOrderLocation(orderId));
+    }
+
+    @Operation(summary = "计算最佳驾驶线路")
+    @Login
+    @PostMapping("/calculateDrivingLine")
+    public Result<DrivingLineVo> calculateDrivingLine(@RequestBody CalculateDrivingLineForm calculateDrivingLineForm) {
+        return Result.ok(orderService.calculateDrivingLine(calculateDrivingLineForm));
+    }
+
 }
 
