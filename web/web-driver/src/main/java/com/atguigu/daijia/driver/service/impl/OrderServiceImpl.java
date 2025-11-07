@@ -8,6 +8,7 @@ import com.atguigu.daijia.driver.service.OrderService;
 import com.atguigu.daijia.map.client.MapFeignClient;
 import com.atguigu.daijia.model.entity.order.OrderInfo;
 import com.atguigu.daijia.model.form.map.CalculateDrivingLineForm;
+import com.atguigu.daijia.model.form.order.UpdateOrderCartForm;
 import com.atguigu.daijia.model.vo.map.DrivingLineVo;
 import com.atguigu.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.atguigu.daijia.model.vo.order.NewOrderDataVo;
@@ -88,7 +89,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Boolean driverArriveStartLocation(Long orderId, Long driverId) {
         Result<Boolean> booleanResult = orderInfoFeignClient.driverArriveStartLocation(orderId, driverId);
-        if (booleanResult.getCode() != 200){
+        if (booleanResult.getCode() != 200) {
+            throw new GuiguException(booleanResult.getCode(), booleanResult.getMessage());
+        }
+        return booleanResult.getData();
+    }
+
+    //司机更新订单车辆信息
+    @Override
+    public Boolean updateOrderCart(UpdateOrderCartForm updateOrderCartForm) {
+
+        Result<Boolean> booleanResult = orderInfoFeignClient.updateOrderCart(updateOrderCartForm);
+        if (booleanResult.getCode() != 200) {
             throw new GuiguException(booleanResult.getCode(), booleanResult.getMessage());
         }
         return booleanResult.getData();
