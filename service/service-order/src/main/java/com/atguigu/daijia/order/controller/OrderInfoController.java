@@ -31,6 +31,7 @@ public class OrderInfoController {
     public Result<Integer> getOrderStatus(@PathVariable Long orderId) {
         return Result.ok(orderInfoService.getOrderStatus(orderId));
     }
+
     @Operation(summary = "司机抢单")
     @GetMapping("/robNewOrder/{driverId}/{orderId}")
     public Result<Boolean> robNewOrder(@PathVariable Long driverId, @PathVariable Long orderId) {
@@ -42,15 +43,24 @@ public class OrderInfoController {
     public Result<CurrentOrderInfoVo> searchCustomerCurrentOrder(@PathVariable Long customerId) {
         return Result.ok(orderInfoService.searchCustomerCurrentOrder(customerId));
     }
+
     @Operation(summary = "司机端查找当前订单")
     @GetMapping("/searchDriverCurrentOrder/{driverId}")
     public Result<CurrentOrderInfoVo> searchDriverCurrentOrder(@PathVariable Long driverId) {
         return Result.ok(orderInfoService.searchDriverCurrentOrder(driverId));
     }
+
     @Operation(summary = "根据订单id获取订单信息")
     @GetMapping("/getOrderInfo/{orderId}")
     public Result<OrderInfo> getOrderInfo(@PathVariable Long orderId) {
         return Result.ok(orderInfoService.getById(orderId));
+    }
+
+    //司机到达起始点，更新代驾数据
+    @Operation(summary = "司机到达起始点")
+    @GetMapping("/driverArriveStartLocation/{orderId}/{driverId}")
+    public Result<Boolean> driverArriveStartLocation(@PathVariable Long orderId, @PathVariable Long driverId) {
+        return Result.ok(orderInfoService.driverArriveStartLocation(orderId, driverId));
     }
 }
 

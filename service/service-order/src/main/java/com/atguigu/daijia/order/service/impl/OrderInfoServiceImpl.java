@@ -79,7 +79,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Override
     public Boolean robNewOrder(Long driverId, Long orderId) {
         //判断订单是否存在，通过Redis，减少数据库压力
-        if(!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
+        if (!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
             //抢单失败
             throw new GuiguException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
         }
@@ -89,9 +89,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         try {
             //获取锁
-            boolean flag = lock.tryLock(RedisConstant.ROB_NEW_ORDER_LOCK_WAIT_TIME,RedisConstant.ROB_NEW_ORDER_LOCK_LEASE_TIME, TimeUnit.SECONDS);
-            if(flag) {
-                if(!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
+            boolean flag = lock.tryLock(RedisConstant.ROB_NEW_ORDER_LOCK_WAIT_TIME, RedisConstant.ROB_NEW_ORDER_LOCK_LEASE_TIME, TimeUnit.SECONDS);
+            if (flag) {
+                if (!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
                     //抢单失败
                     throw new GuiguException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
                 }
@@ -99,7 +99,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 //修改order_info表订单状态值2：已经接单 + 司机id + 司机接单时间
                 //修改条件：根据订单id
                 LambdaQueryWrapper<OrderInfo> wrapper = new LambdaQueryWrapper<>();
-                wrapper.eq(OrderInfo::getId,orderId);
+                wrapper.eq(OrderInfo::getId, orderId);
                 OrderInfo orderInfo = orderInfoMapper.selectOne(wrapper);
                 //设置
                 orderInfo.setStatus(OrderStatus.ACCEPTED.getStatus());
@@ -107,7 +107,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 orderInfo.setAcceptTime(new Date());
                 //调用方法修改
                 int rows = orderInfoMapper.updateById(orderInfo);
-                if(rows != 1) {
+                if (rows != 1) {
                     //抢单失败
                     throw new GuiguException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
                 }
@@ -115,12 +115,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 //删除抢单标识
                 redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             //抢单失败
             throw new GuiguException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
-        }finally {
+        } finally {
             //释放
-            if(lock.isLocked()) {
+            if (lock.isLocked()) {
                 lock.unlock();
             }
         }
@@ -133,7 +133,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         //封装条件
         //乘客id
         LambdaQueryWrapper<OrderInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OrderInfo::getCustomerId,customerId);
+        wrapper.eq(OrderInfo::getCustomerId, customerId);
 
         //各种状态
         Integer[] statusArray = {
@@ -144,7 +144,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 OrderStatus.END_SERVICE.getStatus(),
                 OrderStatus.UNPAID.getStatus()
         };
-        wrapper.in(OrderInfo::getStatus,statusArray);
+        wrapper.in(OrderInfo::getStatus, statusArray);
 
         //获取最新一条记录
         wrapper.orderByDesc(OrderInfo::getId);
@@ -155,7 +155,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         //封装到CurrentOrderInfoVo
         CurrentOrderInfoVo currentOrderInfoVo = new CurrentOrderInfoVo();
-        if(orderInfo != null) {
+        if (orderInfo != null) {
             currentOrderInfoVo.setOrderId(orderInfo.getId());
             currentOrderInfoVo.setStatus(orderInfo.getStatus());
             currentOrderInfoVo.setHasCurrentOrder(true);
@@ -170,7 +170,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     public CurrentOrderInfoVo searchDriverCurrentOrder(Long driverId) {
         //封装条件
         LambdaQueryWrapper<OrderInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OrderInfo::getDriverId,driverId);
+        wrapper.eq(OrderInfo::getDriverId, driverId);
         Integer[] statusArray = {
                 OrderStatus.ACCEPTED.getStatus(),
                 OrderStatus.DRIVER_ARRIVED.getStatus(),
@@ -178,13 +178,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 OrderStatus.START_SERVICE.getStatus(),
                 OrderStatus.END_SERVICE.getStatus()
         };
-        wrapper.in(OrderInfo::getStatus,statusArray);
+        wrapper.in(OrderInfo::getStatus, statusArray);
         wrapper.orderByDesc(OrderInfo::getId);
         wrapper.last(" limit 1");
         OrderInfo orderInfo = orderInfoMapper.selectOne(wrapper);
         //封装到vo
         CurrentOrderInfoVo currentOrderInfoVo = new CurrentOrderInfoVo();
-        if(null != orderInfo) {
+        if (null != orderInfo) {
             currentOrderInfoVo.setStatus(orderInfo.getStatus());
             currentOrderInfoVo.setOrderId(orderInfo.getId());
             currentOrderInfoVo.setHasCurrentOrder(true);
@@ -192,6 +192,28 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             currentOrderInfoVo.setHasCurrentOrder(false);
         }
         return currentOrderInfoVo;
+    }
+
+    //司机到达起始地点之后，更新订单数据
+    @Override
+    public Boolean driverArriveStartLocation(Long orderId, Long driverId) {
+        // 更新订单状态和到达时间，条件：orderId + driverId
+        LambdaQueryWrapper<OrderInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(OrderInfo::getId, orderId);
+        wrapper.eq(OrderInfo::getDriverId, driverId);
+
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setStatus(OrderStatus.DRIVER_ARRIVED.getStatus());
+        orderInfo.setArriveTime(new Date());
+
+        //update方法：前面是更新的值，后面是条件
+        int rows = orderInfoMapper.update(orderInfo, wrapper);
+
+        if (rows == 1) {
+            return true;
+        } else {
+            throw new GuiguException(ResultCodeEnum.UPDATE_ERROR);
+        }
     }
 //    @Override
 //    public Boolean robNewOrder(Long driverId, Long orderId) {

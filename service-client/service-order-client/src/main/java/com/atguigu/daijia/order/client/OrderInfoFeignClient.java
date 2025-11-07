@@ -37,4 +37,8 @@ public interface OrderInfoFeignClient {
     //远程调用：根据订单id获取订单信息
     @GetMapping("/order/info/getOrderInfo/{orderId}")
     public Result<OrderInfo> getOrderInfo(@PathVariable Long orderId);
+
+    //远程调用：司机到达起始点,更新订单数据
+    @GetMapping("/order/info/driverArriveStartLocation/{orderId}/{driverId}")
+    public Result<Boolean> driverArriveStartLocation(@PathVariable Long orderId, @PathVariable Long driverId);
 }

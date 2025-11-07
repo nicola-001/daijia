@@ -83,4 +83,14 @@ public class OrderServiceImpl implements OrderService {
         }
         return drivingLineVoResult.getData();
     }
+
+    //司机到达开始位置，更新订单数据
+    @Override
+    public Boolean driverArriveStartLocation(Long orderId, Long driverId) {
+        Result<Boolean> booleanResult = orderInfoFeignClient.driverArriveStartLocation(orderId, driverId);
+        if (booleanResult.getCode() != 200){
+            throw new GuiguException(booleanResult.getCode(), booleanResult.getMessage());
+        }
+        return booleanResult.getData();
+    }
 }
