@@ -51,4 +51,8 @@ public interface DriverInfoFeignClient {
     //远程调用定义：更新司机接单状态
     @GetMapping("/driver/info/updateServiceStatus/{driverId}/{status}")
     public Result<Boolean> updateServiceStatus(@PathVariable Long driverId, @PathVariable Integer status);
+
+    @GetMapping("/driver/info/getDriverInfo/{driverId}")
+    public Result<DriverInfoVo> getDriverInfoOrder(@PathVariable Long driverId);
+
 }

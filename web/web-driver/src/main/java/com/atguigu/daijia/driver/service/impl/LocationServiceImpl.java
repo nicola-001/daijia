@@ -8,6 +8,7 @@ import com.atguigu.daijia.driver.service.LocationService;
 import com.atguigu.daijia.map.client.LocationFeignClient;
 import com.atguigu.daijia.model.entity.driver.DriverSet;
 import com.atguigu.daijia.model.form.map.UpdateDriverLocationForm;
+import com.atguigu.daijia.model.form.map.UpdateOrderLocationForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,5 +49,14 @@ public class LocationServiceImpl implements LocationService {
             throw new GuiguException(ResultCodeEnum.FAIL);
         }
         return booleanResult.getData();
+    }
+
+    @Override
+    public Boolean updateOrderLocationToCache(UpdateOrderLocationForm updateOrderLocationForm) {
+        Boolean data = locationFeignClient.updateOrderLocationToCache(updateOrderLocationForm).getData();
+        if (!data) {
+            throw new GuiguException(ResultCodeEnum.FAIL);
+        }
+        return data;
     }
 }

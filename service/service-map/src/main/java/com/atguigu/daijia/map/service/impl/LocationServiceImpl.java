@@ -10,7 +10,9 @@ import com.atguigu.daijia.map.service.LocationService;
 import com.atguigu.daijia.model.entity.driver.DriverSet;
 import com.atguigu.daijia.model.form.map.SearchNearByDriverForm;
 import com.atguigu.daijia.model.form.map.UpdateDriverLocationForm;
+import com.atguigu.daijia.model.form.map.UpdateOrderLocationForm;
 import com.atguigu.daijia.model.vo.map.NearByDriverVo;
+import com.atguigu.daijia.model.vo.map.OrderLocationVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.*;
@@ -39,7 +41,7 @@ public class LocationServiceImpl implements LocationService {
     //司机开始接单：更新司机位置信息
     @Override
     public Boolean updateDriverLocation(UpdateDriverLocationForm updateDriverLocationForm) {
-        System.out.println(updateDriverLocationForm.getLongitude().doubleValue()+"   "+updateDriverLocationForm.getLatitude().doubleValue());
+        System.out.println(updateDriverLocationForm.getLongitude().doubleValue() + "   " + updateDriverLocationForm.getLatitude().doubleValue());
         //把司机位置信息添加redis里面geo
         Point point = new Point(updateDriverLocationForm.getLongitude().doubleValue(), updateDriverLocationForm.getLatitude().doubleValue());
         //添加到redis里面
@@ -73,7 +75,7 @@ public class LocationServiceImpl implements LocationService {
                 RedisGeoCommands.DistanceUnit.KILOMETERS);
 
         //创建circle对象，point  distance
-        Circle circle = new Circle(point,distance);
+        Circle circle = new Circle(point, distance);
 
         //定义GEO参数，设置返回结果包含内容
         RedisGeoCommands.GeoRadiusCommandArgs args =
@@ -92,9 +94,9 @@ public class LocationServiceImpl implements LocationService {
         // 遍历list集合，得到每个司机信息
         // 根据每个司机个性化设置信息判断
         List<NearByDriverVo> list = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(content)) {
+        if (!CollectionUtils.isEmpty(content)) {
             Iterator<GeoResult<RedisGeoCommands.GeoLocation<String>>> iterator = content.iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 GeoResult<RedisGeoCommands.GeoLocation<String>> item = iterator.next();
 
                 //获取司机id
@@ -110,8 +112,8 @@ public class LocationServiceImpl implements LocationService {
                 //如果不等于0 ，比如30，接单30公里代驾订单。
                 //接单距离 - 当前单子距离  < 0,不复合条件
                 // 30          35
-                if(orderDistance.doubleValue() != 0
-                        && orderDistance.subtract(searchNearByDriverForm.getMileageDistance()).doubleValue()<0) {
+                if (orderDistance.doubleValue() != 0
+                        && orderDistance.subtract(searchNearByDriverForm.getMileageDistance()).doubleValue() < 0) {
                     continue;
                 }
 
@@ -121,8 +123,8 @@ public class LocationServiceImpl implements LocationService {
                         new BigDecimal(item.getDistance().getValue()).setScale(2, RoundingMode.HALF_UP);
 
                 BigDecimal acceptDistance = driverSet.getAcceptDistance();
-                if(acceptDistance.doubleValue() !=0
-                        && acceptDistance.subtract(currentDistance).doubleValue()<0) {
+                if (acceptDistance.doubleValue() != 0
+                        && acceptDistance.subtract(currentDistance).doubleValue() < 0) {
                     continue;
                 }
 
@@ -136,5 +138,19 @@ public class LocationServiceImpl implements LocationService {
 
         }
         return list;
+    }
+
+    //司机赶往代驾起始点：更新订单地址到缓存
+    @Override
+    public Boolean updateOrderLocationToCache(UpdateOrderLocationForm updateOrderLocationForm) {
+
+        //将前端传递过来的数据封装成orderLocationVo 保存到redis中
+        OrderLocationVo orderLocationVo = new OrderLocationVo();
+        orderLocationVo.setLongitude(updateOrderLocationForm.getLongitude());
+        orderLocationVo.setLatitude(updateOrderLocationForm.getLatitude());
+
+        String key = RedisConstant.UPDATE_ORDER_LOCATION + updateOrderLocationForm.getOrderId();
+        redisTemplate.opsForValue().set(key, orderLocationVo);
+        return true;
     }
 }
