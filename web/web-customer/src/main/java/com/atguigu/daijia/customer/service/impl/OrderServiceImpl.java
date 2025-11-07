@@ -108,7 +108,10 @@ public class OrderServiceImpl implements OrderService {
         newOrderDispatchVo.setFavourFee(orderInfoForm.getFavourFee());
         newOrderDispatchVo.setCreateTime(new Date());
         //远程调用
-        Long jobId = newOrderFeignClient.addAndStartTask(newOrderDispatchVo).getData();
+        Result<Long> longResult = newOrderFeignClient.addAndStartTask(newOrderDispatchVo);
+        if (longResult.getCode() != 200 || longResult.getData() == null) {
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
         //返回订单id
         return orderId;
     }
