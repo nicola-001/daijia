@@ -43,6 +43,6 @@ public interface OrderInfoFeignClient {
     @GetMapping("/order/info/driverArriveStartLocation/{orderId}/{driverId}")
     public Result<Boolean> driverArriveStartLocation(@PathVariable Long orderId, @PathVariable Long driverId);
     //远程调用：更新代驾车辆信息
-    @PostMapping("/updateOrderCart")
+    @PostMapping("/order/info/updateOrderCart")
     public Result<Boolean> updateOrderCart(@RequestBody UpdateOrderCartForm updateOrderCartForm);
 }
