@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Slf4j
@@ -30,7 +31,8 @@ public class FeeRuleServiceImpl implements FeeRuleService {
 
         //封装输入对象
         FeeRuleRequest feeRuleRequest = new FeeRuleRequest();
-        feeRuleRequest.setDistance(calculateOrderFeeForm.getDistance());
+        // 如果距离为0的话则传递默认值0.0
+        feeRuleRequest.setDistance(calculateOrderFeeForm.getDistance() != null? calculateOrderFeeForm.getDistance() : new BigDecimal("0.0"));
         Date startTime = calculateOrderFeeForm.getStartTime();
         feeRuleRequest.setStartTime(new DateTime(startTime).toString("HH:mm:ss"));
         feeRuleRequest.setWaitMinute(calculateOrderFeeForm.getWaitMinute());
@@ -40,7 +42,7 @@ public class FeeRuleServiceImpl implements FeeRuleService {
 
         //封装返回对象
         FeeRuleResponse feeRuleResponse = new FeeRuleResponse();
-        kieSession.setGlobal("feeRuleResponse",feeRuleResponse);
+        kieSession.setGlobal("feeRuleResponse", feeRuleResponse);
 
         kieSession.insert(feeRuleRequest);
         kieSession.fireAllRules();
@@ -49,7 +51,7 @@ public class FeeRuleServiceImpl implements FeeRuleService {
         //封装数据到FeeRuleResponseVo返回
         FeeRuleResponseVo feeRuleResponseVo = new FeeRuleResponseVo();
         // feeRuleResponse -- feeRuleResponseVo
-        BeanUtils.copyProperties(feeRuleResponse,feeRuleResponseVo);
+        BeanUtils.copyProperties(feeRuleResponse, feeRuleResponseVo);
         return feeRuleResponseVo;
     }
 }

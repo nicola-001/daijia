@@ -2,6 +2,7 @@ package com.atguigu.daijia.model.form.rules;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.math.BigDecimal;
 import java.util.Date;

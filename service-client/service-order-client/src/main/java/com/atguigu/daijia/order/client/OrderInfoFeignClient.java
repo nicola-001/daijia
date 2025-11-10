@@ -2,8 +2,7 @@ package com.atguigu.daijia.order.client;
 
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.model.entity.order.OrderInfo;
-import com.atguigu.daijia.model.form.order.OrderInfoForm;
-import com.atguigu.daijia.model.form.order.UpdateOrderCartForm;
+import com.atguigu.daijia.model.form.order.*;
 import com.atguigu.daijia.model.vo.order.CurrentOrderInfoVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +41,30 @@ public interface OrderInfoFeignClient {
     //远程调用：司机到达起始点,更新订单数据
     @GetMapping("/order/info/driverArriveStartLocation/{orderId}/{driverId}")
     public Result<Boolean> driverArriveStartLocation(@PathVariable Long orderId, @PathVariable Long driverId);
+
     //远程调用：更新代驾车辆信息
     @PostMapping("/order/info/updateOrderCart")
     public Result<Boolean> updateOrderCart(@RequestBody UpdateOrderCartForm updateOrderCartForm);
+
+    //远程调用：开始代驾服务，修改订单状态
+    @PostMapping("/order/info/startDrive")
+    public Result<Boolean> startDriver(@RequestBody StartDriveForm startDriveForm);
+
+    /**
+     * 根据时间段获取订单数
+     *
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @GetMapping("/order/info/getOrderNumByTime/{startTime}/{endTime}")
+    Result<Long> getOrderNumByTime(@PathVariable("startTime") String startTime, @PathVariable("endTime") String endTime);
+
+    /**
+     * 结束代驾服务更新订单账单
+     * @param updateOrderBillForm
+     * @return
+     */
+    @PostMapping("/order/info/endDrive")
+    Result<Boolean> endDrive(@RequestBody UpdateOrderBillForm updateOrderBillForm);
 }

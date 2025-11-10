@@ -9,5 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(value = "service-driver")
 public interface CiFeignClient {
 
-
+    /**
+     * 远程调用：文本审核
+     */
+    @PostMapping("/cos/textAuditing")
+    Result<TextAuditingVo> textAuditing(@RequestBody String content);
 }

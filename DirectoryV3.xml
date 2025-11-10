@@ -50,4 +50,20 @@
     <tree path="/service/service-dispatch/src/main/java/com/atguigu/daijia/dispatch/xxl/config" title="配置类"/>
     <tree path="/service/service-dispatch/src/main/java/com/atguigu/daijia/dispatch/xxl/job" title="测试方法"
           extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+    <tree path="/service/service-order/src/main/java/com/atguigu/daijia/order/controller/OrderMonitorController.java"
+          title="保存订单监控记录数据"/>
+    <tree path="/service/service-driver/src/main/java/com/atguigu/daijia/driver/service/CiService.java"
+          title="数据万象-图片审核" extension="" presentableText="" tooltipTitle="" icon="" textColor=""
+          backgroundColor=""/>
+    <tree path="/service/service-driver/src/main/java/com/atguigu/daijia/driver/service/impl/CiServiceImpl.java"
+          title="数据万象-图片审核"/>
+    <tree path="/common/common-util/src/main/java/com/atguigu/daijia/common/util/LocationUtil.java"
+          title="计算路程的工具类"/>
+    <tree path="/service/service-rules/src/main/resources/rules/RewardRule.drl" title="奖励规则文件"/>
+    <tree path="/service/service-rules/src/main/resources/rules/FeeRule.drl" title="费用的规则文件"/>
+    <tree path="/service/service-rules/src/main/java/com/atguigu/daijia/rules/controller/RewardRuleController.java"
+          title="平台奖励"/>
+    <tree path="/service/service-rules/src/main/java/com/atguigu/daijia/rules/controller/ProfitsharingRuleController.java"
+          title="分账信息"/>
+    <tree path="/service/service-rules/src/main/resources/rules/ProfitsharingRule.drl" title="分账的规则文件"/>
 </trees>

@@ -5,26 +5,39 @@ import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.atguigu.daijia.common.constant.RedisConstant;
 import com.atguigu.daijia.common.constant.SystemConstant;
 import com.atguigu.daijia.common.result.Result;
+import com.atguigu.daijia.common.util.LocationUtil;
 import com.atguigu.daijia.driver.client.DriverInfoFeignClient;
+import com.atguigu.daijia.map.repository.OrderServiceLocationRepository;
 import com.atguigu.daijia.map.service.LocationService;
 import com.atguigu.daijia.model.entity.driver.DriverSet;
+import com.atguigu.daijia.model.entity.map.OrderServiceLocation;
+import com.atguigu.daijia.model.form.map.OrderServiceLocationForm;
 import com.atguigu.daijia.model.form.map.SearchNearByDriverForm;
 import com.atguigu.daijia.model.form.map.UpdateDriverLocationForm;
 import com.atguigu.daijia.model.form.map.UpdateOrderLocationForm;
 import com.atguigu.daijia.model.vo.map.NearByDriverVo;
 import com.atguigu.daijia.model.vo.map.OrderLocationVo;
+import com.atguigu.daijia.model.vo.map.OrderServiceLastLocationVo;
+import com.atguigu.daijia.order.client.OrderInfoFeignClient;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.*;
 import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.domain.Sort;
 
 import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,7 +49,13 @@ public class LocationServiceImpl implements LocationService {
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
+    private MongoTemplate mongoTemplate;
+    @Autowired
     private DriverInfoFeignClient driverInfoFeignClient;
+    @Autowired
+    private OrderServiceLocationRepository orderServiceLocationRepository;
+    @Autowired
+    private OrderInfoFeignClient orderInfoFeignClient;
 
     //司机开始接单：更新司机位置信息
     @Override
@@ -157,9 +176,100 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public OrderLocationVo getCacheOrderLocation(Long orderId) {
         String key = RedisConstant.UPDATE_ORDER_LOCATION + orderId;
-        OrderLocationVo orderLocationVo = (OrderLocationVo)redisTemplate.opsForValue().get(key);
+        OrderLocationVo orderLocationVo = (OrderLocationVo) redisTemplate.opsForValue().get(key);
         return orderLocationVo;
     }
 
+    //批量保存代驾服务订单位置
+    @Override
+    public Boolean saveOrderServiceLocation(List<OrderServiceLocationForm> orderLocationServiceFormList) {
+
+        List<OrderServiceLocation> list = new ArrayList<>();
+        //OrderServiceLocation
+        orderLocationServiceFormList.forEach(orderServiceLocationForm -> {
+            //orderServiceLocationForm -- OrderServiceLocation
+            OrderServiceLocation orderServiceLocation = new OrderServiceLocation();
+            BeanUtils.copyProperties(orderServiceLocationForm, orderServiceLocation);
+            orderServiceLocation.setId(ObjectId.get().toString());
+            orderServiceLocation.setCreateTime(new Date());
+
+            //添加到list集合
+            list.add(orderServiceLocation);
+            //一个一个保存到MongoDB
+            //orderServiceLocationRepository.save(orderServiceLocation);
+        });
+        //批量添加到MongoDB
+        orderServiceLocationRepository.saveAll(list);
+        return true;
+    }
+
+    //获取代驾服务订单最后位置
+    @Override
+    public OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId) {
+        //查询MongoDB
+        //查询条件 ：orderId
+        //根据创建时间降序排列
+        //最新一条数据
+        System.out.println(11111);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("orderId").is(orderId));
+        query.with(Sort.by(Sort.Order.desc("createTime")));
+        query.limit(1);
+
+        OrderServiceLocation orderServiceLocation =
+                mongoTemplate.findOne(query, OrderServiceLocation.class);
+        System.out.println(orderServiceLocation+"33333");
+        OrderServiceLastLocationVo orderServiceLastLocationVo = new OrderServiceLastLocationVo();
+        BeanUtils.copyProperties(orderServiceLocation, orderServiceLastLocationVo);
+        return orderServiceLastLocationVo;
+    }
+
+    @Override
+    public BigDecimal calculateOrderRealDistance(Long orderId) {
+        //1 根据订单id获取代驾订单位置信息，根据创建时间排序（升序）
+        //查询MongoDB
+        //第一种方式
+//        OrderServiceLocation orderServiceLocation = new OrderServiceLocation();
+//        orderServiceLocation.setOrderId(orderId);
+//        Example<OrderServiceLocation> example = Example.of(orderServiceLocation);
+//        Sort sort = Sort.by(Sort.Direction.ASC, "createTime");
+//        List<OrderServiceLocation> list = orderServiceLocationRepository.findAll(example, sort);
+        //第二种方式
+        //MongoRepository只需要 按照规则 在MongoRepository把查询方法创建出来就可以了
+        // 总体规则：
+        //1 查询方法名称 以 get  |  find  | read开头
+        //2 后面查询字段名称，满足驼峰式命名，比如OrderId
+        //3 字段查询条件添加关键字，比如Like  OrderBy   Asc
+        // 具体编写 ： 根据订单id获取代驾订单位置信息，根据创建时间排序（升序）
+        List<OrderServiceLocation> list =
+                orderServiceLocationRepository.findByOrderIdOrderByCreateTimeAsc(orderId);
+
+        //2 第一步查询返回订单位置信息list集合
+        //把list集合遍历，得到每个位置信息，计算两个位置距离
+        //把计算所有距离相加操作
+        double realDistance = 0;
+        if (!CollectionUtils.isEmpty(list)) {
+            for (int i = 0, size = list.size() - 1; i < size; i++) {
+                OrderServiceLocation location1 = list.get(i);
+                OrderServiceLocation location2 = list.get(i + 1);
+
+                //计算位置距离
+                double distance = LocationUtil.getDistance(location1.getLatitude().doubleValue(),
+                        location1.getLongitude().doubleValue(),
+                        location2.getLatitude().doubleValue(),
+                        location2.getLongitude().doubleValue());
+
+                realDistance += distance;
+            }
+        }
+
+
+        //实际距离=预估距离+5公里
+        if (realDistance == 0) {
+            return orderInfoFeignClient.getOrderInfo(orderId).getData().getRealDistance().add(new BigDecimal("5"));
+        }
+        //3 返回最终计算实际距离
+        return new BigDecimal(realDistance);
+    }
 
 }

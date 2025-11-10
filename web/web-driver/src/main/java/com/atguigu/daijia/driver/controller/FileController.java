@@ -3,6 +3,7 @@ package com.atguigu.daijia.driver.controller;
 import com.atguigu.daijia.common.login.Login;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.driver.service.CosService;
+import com.atguigu.daijia.driver.service.FileService;
 import com.atguigu.daijia.model.vo.driver.CosUploadVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,17 +16,27 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("file")
 public class FileController {
 
-    @Autowired
-    private CosService cosService;
+//    @Autowired
+//    private CosService cosService;
+//
+//    //文件上传接口
+//    @Operation(summary = "上传")
+//    @Login
+//    @PostMapping("/upload")
+//    public Result<String> upload(@RequestPart("file") MultipartFile file,
+//                                      @RequestParam(name = "path",defaultValue = "auth") String path) {
+//        CosUploadVo cosUploadVo = cosService.uploadFile(file,path);
+//        String url = cosUploadVo.getUrl();
+//        return Result.ok(url);
+//    }
 
-    //文件上传接口
+    @Autowired
+    private FileService fileService;
+
     @Operation(summary = "上传")
-    @Login
     @PostMapping("/upload")
-    public Result<String> upload(@RequestPart("file") MultipartFile file,
-                                      @RequestParam(name = "path",defaultValue = "auth") String path) {
-        CosUploadVo cosUploadVo = cosService.uploadFile(file,path);
-        String url = cosUploadVo.getUrl();
+    public Result<String> upload(@RequestPart("file") MultipartFile file) {
+        String url = fileService.upload(file);
         return Result.ok(url);
     }
 
