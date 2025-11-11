@@ -10,6 +10,7 @@ import com.atguigu.daijia.driver.service.OrderService;
 import com.atguigu.daijia.map.client.LocationFeignClient;
 import com.atguigu.daijia.map.client.MapFeignClient;
 import com.atguigu.daijia.model.entity.order.OrderInfo;
+import com.atguigu.daijia.model.enums.OrderStatus;
 import com.atguigu.daijia.model.form.map.CalculateDrivingLineForm;
 import com.atguigu.daijia.model.form.order.OrderFeeForm;
 import com.atguigu.daijia.model.form.order.StartDriveForm;
@@ -22,9 +23,7 @@ import com.atguigu.daijia.model.vo.base.PageVo;
 import com.atguigu.daijia.model.vo.map.DrivingLineVo;
 import com.atguigu.daijia.model.vo.map.OrderLocationVo;
 import com.atguigu.daijia.model.vo.map.OrderServiceLastLocationVo;
-import com.atguigu.daijia.model.vo.order.CurrentOrderInfoVo;
-import com.atguigu.daijia.model.vo.order.NewOrderDataVo;
-import com.atguigu.daijia.model.vo.order.OrderInfoVo;
+import com.atguigu.daijia.model.vo.order.*;
 import com.atguigu.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.atguigu.daijia.model.vo.rules.ProfitsharingRuleResponseVo;
 import com.atguigu.daijia.model.vo.rules.RewardRuleResponseVo;
@@ -98,10 +97,25 @@ public class OrderServiceImpl implements OrderService {
         if (orderInfo.getDriverId() != driverId) {
             throw new GuiguException(ResultCodeEnum.ILLEGAL_REQUEST);
         }
+
+        //获取账单和分账数据，封装到vo里面
+        OrderBillVo orderBillVo = null;
+        OrderProfitsharingVo orderProfitsharingVo = null;
+        //判断是否结束代驾
+        if(orderInfo.getStatus() >= OrderStatus.END_SERVICE.getStatus()) {
+            //账单信息
+            orderBillVo = orderInfoFeignClient.getOrderBillInfo(orderId).getData();
+
+            //分账信息
+            orderProfitsharingVo = orderInfoFeignClient.getOrderProfitsharing(orderId).getData();
+        }
+
         //封装对象返回
         OrderInfoVo orderInfoVo = new OrderInfoVo();
         orderInfoVo.setOrderId(orderId);
-        BeanUtils.copyProperties(orderInfo, orderInfoVo);
+        BeanUtils.copyProperties(orderInfo,orderInfoVo);
+        orderInfoVo.setOrderBillVo(orderBillVo);
+        orderInfoVo.setOrderProfitsharingVo(orderProfitsharingVo);
         return orderInfoVo;
     }
 
@@ -283,7 +297,7 @@ public class OrderServiceImpl implements OrderService {
                 orderInfo.getEndPointLongitude().doubleValue(),
                 orderServiceLastLocationVo.getLatitude().doubleValue(),
                 orderServiceLastLocationVo.getLongitude().doubleValue());
-        if(distance > SystemConstant.DRIVER_END_LOCATION_DISTION) {
+        if (distance > SystemConstant.DRIVER_END_LOCATION_DISTION) {
             throw new GuiguException(ResultCodeEnum.DRIVER_END_LOCATION_DISTION_ERROR);
         }
 
@@ -396,6 +410,6 @@ public class OrderServiceImpl implements OrderService {
     //司机端获取订单信息接口
     @Override
     public PageVo findDriverOrderPage(Long driverId, Long page, Long limit) {
-        return orderInfoFeignClient.findDriverOrderPage(driverId,page,limit).getData();
+        return orderInfoFeignClient.findDriverOrderPage(driverId, page, limit).getData();
     }
 }
