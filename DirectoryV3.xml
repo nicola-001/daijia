@@ -66,4 +66,6 @@
     <tree path="/service/service-rules/src/main/java/com/atguigu/daijia/rules/controller/ProfitsharingRuleController.java"
           title="分账信息"/>
     <tree path="/service/service-rules/src/main/resources/rules/ProfitsharingRule.drl" title="分账的规则文件"/>
+    <tree path="/web/web-driver/src/main/java/com/atguigu/daijia/driver/config/ThreadPoolConfig.java"
+          title="创建自定义线程池"/>
 </trees>

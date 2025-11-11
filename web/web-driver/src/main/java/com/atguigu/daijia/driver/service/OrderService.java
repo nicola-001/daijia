@@ -36,4 +36,6 @@ public interface OrderService {
     Boolean endDrive(OrderFeeForm orderFeeForm);
 
     PageVo findDriverOrderPage(Long driverId, Long page, Long limit);
+
+    Boolean endDriveThread(OrderFeeForm orderFeeForm);
 }
