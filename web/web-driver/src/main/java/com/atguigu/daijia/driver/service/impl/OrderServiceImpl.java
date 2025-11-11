@@ -407,6 +407,11 @@ public class OrderServiceImpl implements OrderService {
         return true;
     }
 
+    @Override
+    public Boolean sendOrderBillInfo(Long orderId, Long driverId) {
+        return orderInfoFeignClient.sendOrderBillInfo(orderId, driverId).getData();
+    }
+
     //司机端获取订单信息接口
     @Override
     public PageVo findDriverOrderPage(Long driverId, Long page, Long limit) {

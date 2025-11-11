@@ -38,4 +38,6 @@ public interface OrderService {
     PageVo findDriverOrderPage(Long driverId, Long page, Long limit);
 
     Boolean endDriveThread(OrderFeeForm orderFeeForm);
+
+    Boolean sendOrderBillInfo(Long orderId, Long driverId);
 }
