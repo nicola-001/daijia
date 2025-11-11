@@ -227,26 +227,10 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public BigDecimal calculateOrderRealDistance(Long orderId) {
         //1 根据订单id获取代驾订单位置信息，根据创建时间排序（升序）
-        //查询MongoDB
-        //第一种方式
-//        OrderServiceLocation orderServiceLocation = new OrderServiceLocation();
-//        orderServiceLocation.setOrderId(orderId);
-//        Example<OrderServiceLocation> example = Example.of(orderServiceLocation);
-//        Sort sort = Sort.by(Sort.Direction.ASC, "createTime");
-//        List<OrderServiceLocation> list = orderServiceLocationRepository.findAll(example, sort);
-        //第二种方式
-        //MongoRepository只需要 按照规则 在MongoRepository把查询方法创建出来就可以了
-        // 总体规则：
-        //1 查询方法名称 以 get  |  find  | read开头
-        //2 后面查询字段名称，满足驼峰式命名，比如OrderId
-        //3 字段查询条件添加关键字，比如Like  OrderBy   Asc
-        // 具体编写 ： 根据订单id获取代驾订单位置信息，根据创建时间排序（升序）
         List<OrderServiceLocation> list =
                 orderServiceLocationRepository.findByOrderIdOrderByCreateTimeAsc(orderId);
 
-        //2 第一步查询返回订单位置信息list集合
-        //把list集合遍历，得到每个位置信息，计算两个位置距离
-        //把计算所有距离相加操作
+        //2 计算位置之间的距离总和
         double realDistance = 0;
         if (!CollectionUtils.isEmpty(list)) {
             for (int i = 0, size = list.size() - 1; i < size; i++) {
@@ -263,11 +247,23 @@ public class LocationServiceImpl implements LocationService {
             }
         }
 
-
         //实际距离=预估距离+5公里
         if (realDistance == 0) {
-            return orderInfoFeignClient.getOrderInfo(orderId).getData().getRealDistance().add(new BigDecimal("5"));
+            // 获取订单信息并做空值检查
+            Result<com.atguigu.daijia.model.entity.order.OrderInfo> orderInfoResult =
+                    orderInfoFeignClient.getOrderInfo(orderId);
+
+            if (orderInfoResult != null && orderInfoResult.getData() != null) {
+                BigDecimal realDistanceFromOrder = orderInfoResult.getData().getRealDistance();
+                // 检查getRealDistance()返回值是否为null
+                if (realDistanceFromOrder != null) {
+                    return realDistanceFromOrder.add(new BigDecimal("5"));
+                }
+            }
+            // 如果获取不到订单的实际距离，则返回默认值5公里
+            return new BigDecimal("5");
         }
+
         //3 返回最终计算实际距离
         return new BigDecimal(realDistance);
     }

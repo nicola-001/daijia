@@ -12,13 +12,17 @@ import com.atguigu.daijia.model.form.order.OrderInfoForm;
 import com.atguigu.daijia.model.form.order.StartDriveForm;
 import com.atguigu.daijia.model.form.order.UpdateOrderBillForm;
 import com.atguigu.daijia.model.form.order.UpdateOrderCartForm;
+import com.atguigu.daijia.model.vo.base.PageVo;
 import com.atguigu.daijia.model.vo.order.CurrentOrderInfoVo;
+import com.atguigu.daijia.model.vo.order.OrderListVo;
 import com.atguigu.daijia.order.mapper.OrderBillMapper;
 import com.atguigu.daijia.order.mapper.OrderInfoMapper;
 import com.atguigu.daijia.order.mapper.OrderProfitsharingMapper;
 import com.atguigu.daijia.order.mapper.OrderStatusLogMapper;
 import com.atguigu.daijia.order.service.OrderInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -170,9 +174,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if (orderInfo != null) {
             currentOrderInfoVo.setOrderId(orderInfo.getId());
             currentOrderInfoVo.setStatus(orderInfo.getStatus());
-            currentOrderInfoVo.setHasCurrentOrder(true);
+            currentOrderInfoVo.setIsHasCurrentOrder(true);
         } else {
-            currentOrderInfoVo.setHasCurrentOrder(false);
+            currentOrderInfoVo.setIsHasCurrentOrder(false);
         }
         return currentOrderInfoVo;
     }
@@ -199,9 +203,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if (null != orderInfo) {
             currentOrderInfoVo.setStatus(orderInfo.getStatus());
             currentOrderInfoVo.setOrderId(orderInfo.getId());
-            currentOrderInfoVo.setHasCurrentOrder(true);
+            currentOrderInfoVo.setIsHasCurrentOrder(true);
         } else {
-            currentOrderInfoVo.setHasCurrentOrder(false);
+            currentOrderInfoVo.setIsHasCurrentOrder(false);
         }
         return currentOrderInfoVo;
     }
@@ -321,6 +325,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             throw new GuiguException(ResultCodeEnum.UPDATE_ERROR);
         }
         return true;
+    }
+
+    //获取乘客订单分页列表
+    @Override
+    public PageVo findCustomerOrderPage(Page<OrderInfo> pageParam, Long customerId) {
+        IPage<OrderListVo> pageInfo =  orderInfoMapper.selectCustomerOrderPage(pageParam,customerId);
+        return new PageVo<>(pageInfo.getRecords(),pageInfo.getPages(),pageInfo.getTotal());
     }
 
 //    @Override

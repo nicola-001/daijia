@@ -13,5 +13,5 @@ public class CurrentOrderInfoVo {
 	private Integer status;
 
 	@Schema(description = "当前订单信息")
-	private Boolean hasCurrentOrder;
+	private Boolean isHasCurrentOrder;
 }

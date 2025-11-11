@@ -3,6 +3,7 @@ package com.atguigu.daijia.order.client;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.model.entity.order.OrderInfo;
 import com.atguigu.daijia.model.form.order.*;
+import com.atguigu.daijia.model.vo.base.PageVo;
 import com.atguigu.daijia.model.vo.order.CurrentOrderInfoVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,9 +63,19 @@ public interface OrderInfoFeignClient {
 
     /**
      * 结束代驾服务更新订单账单
+     *
      * @param updateOrderBillForm
      * @return
      */
     @PostMapping("/order/info/endDrive")
     Result<Boolean> endDrive(@RequestBody UpdateOrderBillForm updateOrderBillForm);
+
+
+    /**
+     * 获取乘客订单分页列表
+     */
+    @GetMapping("/order/info/findCustomerOrderPage/{customerId}/{page}/{limit}")
+    public Result<PageVo> findCustomerOrderPage(@PathVariable("customerId") Long customerId,
+                                                @PathVariable("page") Long page,
+                                                @PathVariable("limit") Long limit);
 }
